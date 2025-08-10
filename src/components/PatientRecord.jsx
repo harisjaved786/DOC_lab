@@ -446,24 +446,60 @@ const cancelEditingRecord = () => {
           </h2>
           <p className="text-xs sm:text-sm" style={{ color: colors.lightText }}>{doctor.specialty}</p>
         </div>
-        {isSuperAdmin && (
-          <div className="w-full sm:w-auto mt-2 sm:mt-0 flex flex-col sm:flex-row gap-2">
-            <button
-              onClick={exportPDF}
-              className="flex items-center justify-center font-medium py-2 px-3 rounded-md transition duration-200 w-full sm:w-auto"
-              style={{ backgroundColor: colors.secondary, color: '#fff', border: `1px solid ${colors.secondary}` }}
-            >
-              <span className="mr-2">📄</span> Export to PDF
-            </button>
-            <button
-              onClick={exportOverallPDF}
-              className="flex items-center justify-center font-medium py-2 px-3 rounded-md transition duration-200 w-full sm:w-auto"
-              style={{ backgroundColor: colors.secondary, color: '#fff', border: `1px solid ${colors.secondary}` }}
-            >
-              <span className="mr-2">📊</span> Overall Record PDF
-            </button>
-          </div>
-        )}
+      // Replace the PDF export buttons section in your PatientRecords component
+
+{isSuperAdmin && (
+  <div className="w-full sm:w-auto mt-2 sm:mt-0 flex flex-col sm:flex-row gap-2">
+    <button
+      onClick={exportPDF}
+      className="flex items-center justify-center font-medium py-2 px-3 rounded-md transition duration-200 w-full sm:w-auto"
+      style={{
+        backgroundColor: '#6c757d',
+        color: '#ffffff',
+        border: '1px solid #6c757d',
+        outline: 'none',
+        WebkitAppearance: 'none',
+        MozAppearance: 'none',
+        appearance: 'none',
+        cursor: 'pointer'
+      }}
+      onMouseOver={(e) => {
+        e.target.style.backgroundColor = '#5a6268';
+        e.target.style.borderColor = '#5a6268';
+      }}
+      onMouseOut={(e) => {
+        e.target.style.backgroundColor = '#6c757d';
+        e.target.style.borderColor = '#6c757d';
+      }}
+    >
+      <span className="mr-2">📄</span> Export to PDF
+    </button>
+    <button
+      onClick={exportOverallPDF}
+      className="flex items-center justify-center font-medium py-2 px-3 rounded-md transition duration-200 w-full sm:w-auto"
+      style={{
+        backgroundColor: '#6c757d',
+        color: '#ffffff',
+        border: '1px solid #6c757d',
+        outline: 'none',
+        WebkitAppearance: 'none',
+        MozAppearance: 'none',
+        appearance: 'none',
+        cursor: 'pointer'
+      }}
+      onMouseOver={(e) => {
+        e.target.style.backgroundColor = '#5a6268';
+        e.target.style.borderColor = '#5a6268';
+      }}
+      onMouseOut={(e) => {
+        e.target.style.backgroundColor = '#6c757d';
+        e.target.style.borderColor = '#6c757d';
+      }}
+    >
+      <span className="mr-2">📊</span> Overall Record PDF
+    </button>
+  </div>
+)}
       </div>
 
       {/* Main Content Grid */}
