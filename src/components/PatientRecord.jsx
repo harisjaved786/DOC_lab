@@ -219,6 +219,34 @@ const PatientRecords = ({ doctors }) => {
     }
   };
 
+  const startEditingRecord = (record) => {
+  setEditingRecord(record);
+  setNewRecord({
+    name: record.name || '',
+    age: record.age || '',
+    test: record.test || '',
+    total: record.total || '',
+    discount: record.discount || '',
+    received: record.received || '',
+    doctorShare: record.doctorShare || '',
+    date: record.date ? new Date(record.date) : new Date(),
+  });
+};
+
+const cancelEditingRecord = () => {
+  setEditingRecord(null);
+  setNewRecord({
+    name: '',
+    age: '',
+    test: '',
+    total: '',
+    discount: '',
+    received: '',
+    doctorShare: '',
+    date: new Date(),
+  });
+};
+
   const filteredRecords = sortByDate(
     isSuperAdmin
       ? records.filter(r => {
