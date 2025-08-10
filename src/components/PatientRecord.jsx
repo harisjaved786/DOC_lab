@@ -446,7 +446,7 @@ const cancelEditingRecord = () => {
           </h2>
           <p className="text-xs sm:text-sm" style={{ color: colors.lightText }}>{doctor.specialty}</p>
         </div>
-      // Replace the PDF export buttons section in your PatientRecords component
+    
 
 {isSuperAdmin && (
   <div className="w-full sm:w-auto mt-2 sm:mt-0 flex flex-col sm:flex-row gap-2">
@@ -701,3 +701,4 @@ const cancelEditingRecord = () => {
 };
 
 export default PatientRecords;
+
