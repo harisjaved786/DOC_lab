@@ -16,12 +16,37 @@ const Header = ({ colors = defaultColors, setSidebarOpen }) => {
         window.location.href = '/login';
       }
     });
-
     return () => unsubscribeAuth();
   }, []);
 
+  // Inline styles for cross-browser compatibility
+  const logoutButtonStyle = {
+    backgroundColor: '#dc2626', // red-600
+    color: '#ffffff',
+    padding: '4px 12px',
+    borderRadius: '4px',
+    border: 'none',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
+    outline: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    appearance: 'none'
+  };
+
+  const logoutButtonHoverStyle = {
+    backgroundColor: '#b91c1c' // red-700
+  };
+
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <header className="p-4 flex items-center justify-between" style={{ backgroundColor: colors.primary, color: colors.text }}>
+    <header 
+      className="p-4 flex items-center justify-between" 
+      style={{ backgroundColor: colors.primary, color: colors.text }}
+    >
       <div className="flex items-center">
         <button
           className="lg:hidden mr-4 text-white"
@@ -31,13 +56,21 @@ const Header = ({ colors = defaultColors, setSidebarOpen }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        
       </div>
+      
       {error && <p className="text-red-600 text-sm">{error}</p>}
+      
       {user && (
         <button
           onClick={() => auth.signOut()}
-          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+          style={{
+            ...logoutButtonStyle,
+            ...(isHovered ? logoutButtonHoverStyle : {})
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
         >
           Logout
         </button>
