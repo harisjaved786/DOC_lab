@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Changed from HashRouter
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -24,105 +24,100 @@ function App() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [doctorsListener, setDoctorsListener] = useState(null);
-  const [isPendingApproval, setIsPendingApproval] = useState(false); // NEW STATE
+  const [isPendingApproval, setIsPendingApproval] = useState(false);
 
-useEffect(() => {
-  let unsubscribeAuth = () => {};
-  let unsubscribeDoctors = () => {};
+  useEffect(() => {
+    let unsubscribeAuth = () => {};
+    let unsubscribeDoctors = () => {};
 
-  unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-    try {
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          
-          // FIXED LOGIC: Clear previous error state
-          setError('');
-          setIsPendingApproval(false);
-          
-          if (data.role === 'admin' && !data.approved) {
-            // User is admin but not approved - show pending message
-            setIsPendingApproval(true);
-            setIsAuthenticated(false);
-            setUserData(null);
-          } else if (data.role === 'admin' && data.approved) {
-            // User is admin and approved - allow access
-            setIsAuthenticated(true);
-            setUserData(prev => {
-              const newData = { uid: user.uid, ...data };
-              if (JSON.stringify(prev) === JSON.stringify(newData)) {
-                return prev;
-              }
-              return newData;
-            });
-          } else if (data.role === 'superadmin') {
-            // User is superadmin - allow access
-            setIsAuthenticated(true);
-            setUserData(prev => {
-              const newData = { uid: user.uid, ...data };
-              if (JSON.stringify(prev) === JSON.stringify(newData)) {
-                return prev;
-              }
-              return newData;
-            });
+    unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            
+            setError('');
+            setIsPendingApproval(false);
+            
+            if (data.role === 'admin' && !data.approved) {
+              setIsPendingApproval(true);
+              setIsAuthenticated(false);
+              setUserData(null);
+            } else if (data.role === 'admin' && data.approved) {
+              setIsAuthenticated(true);
+              setUserData(prev => {
+                const newData = { uid: user.uid, ...data };
+                if (JSON.stringify(prev) === JSON.stringify(newData)) {
+                  return prev;
+                }
+                return newData;
+              });
+            } else if (data.role === 'superadmin') {
+              setIsAuthenticated(true);
+              setUserData(prev => {
+                const newData = { uid: user.uid, ...data };
+                if (JSON.stringify(prev) === JSON.stringify(newData)) {
+                  return prev;
+                }
+                return newData;
+              });
+            } else {
+              setError('Unauthorized access. Please contact administrator.');
+              setIsAuthenticated(false);
+              setUserData(null);
+            }
           } else {
-            // Unknown role or unauthorized
-            setError('Unauthorized access. Please contact administrator.');
+            setError('User data not found in Firestore.');
             setIsAuthenticated(false);
             setUserData(null);
+            setIsPendingApproval(false);
           }
         } else {
-          setError('User data not found in Firestore.');
           setIsAuthenticated(false);
           setUserData(null);
+          setError('');
           setIsPendingApproval(false);
         }
-      } else {
+      } catch (err) {
+        setError('Failed to fetch user authentication data. Please try again.');
         setIsAuthenticated(false);
         setUserData(null);
-        setError('');
         setIsPendingApproval(false);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Failed to fetch user authentication data. Please try again.');
-      setIsAuthenticated(false);
-      setUserData(null);
-      setIsPendingApproval(false);
-    } finally {
-      setLoading(false);
-    }
-  });
+    });
 
-  if (isAuthenticated && !doctorsListener) {
-    unsubscribeDoctors = onSnapshot(
-      collection(db, 'doctors'),
-      (snapshot) => {
-        const doctorList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setDoctors(prev => {
-          const newData = doctorList;
-          if (JSON.stringify(prev) === JSON.stringify(newData)) {
-            return prev;
-          }
-          return newData;
-        });
-      },
-      (err) => {
-        setError('Failed to fetch doctors data. Please check your connection or Firestore rules.');
+    if (isAuthenticated && !doctorsListener) {
+      unsubscribeDoctors = onSnapshot(
+        collection(db, 'doctors'),
+        (snapshot) => {
+          const doctorList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setDoctors(prev => {
+            const newData = doctorList;
+            if (JSON.stringify(prev) === JSON.stringify(newData)) {
+              return prev;
+            }
+            return newData;
+          });
+        },
+        (err) => {
+          setError('Failed to fetch doctors data. Please check your connection or Firestore rules.');
+        }
+      );
+      setDoctorsListener(() => unsubscribeDoctors);
+    }
+
+    return () => {
+      unsubscribeAuth();
+      if (doctorsListener) {
+        doctorsListener();
+        setDoctorsListener(null);
       }
-    );
-    setDoctorsListener(() => unsubscribeDoctors);
-  }
-
-  return () => {
-    unsubscribeAuth();
-    if (doctorsListener) {
-      doctorsListener();
-      setDoctorsListener(null);
-    }
-  };
-}, [isAuthenticated, doctorsListener]);
+    };
+  }, [isAuthenticated, doctorsListener]);
 
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
@@ -141,7 +136,6 @@ useEffect(() => {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  // SHOW PENDING APPROVAL MESSAGE ONLY FOR UNAPPROVED ADMINS
   if (isPendingApproval) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colors.background }}>
