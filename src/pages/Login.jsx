@@ -58,6 +58,7 @@ const Login = ({ setIsAuthenticated, colors = defaultColors }) => {
               type="email"
               className="w-full px-4 py-2 border text-gray-800 bg-white rounded-lg focus:ring-2 focus:ring-blue-700"
               value={email}
+              autoComplete='email'
               onChange={(e) => setEmail(e.target.value)}
               style={{ borderColor: colors.border }}
               required
@@ -101,3 +102,4 @@ const Login = ({ setIsAuthenticated, colors = defaultColors }) => {
 
 
 export default Login;
+
